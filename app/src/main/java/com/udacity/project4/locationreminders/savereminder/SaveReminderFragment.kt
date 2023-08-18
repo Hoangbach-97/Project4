@@ -37,6 +37,7 @@ import com.udacity.project4.databinding.FragmentSaveReminderBinding
 import com.udacity.project4.locationreminders.geofence.GeofenceBroadcastReceiver
 import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
+import java.util.Objects
 import org.koin.android.ext.android.inject
 
 class SaveReminderFragment : BaseFragment() {
@@ -123,8 +124,9 @@ class SaveReminderFragment : BaseFragment() {
                 latitude,
                 longitude
             )
-
-            checkPermissionsAndStartGeofencing()
+            if (latitude != null && longitude != null) {
+                checkPermissionsAndStartGeofencing()
+            }
         }
     }
 
