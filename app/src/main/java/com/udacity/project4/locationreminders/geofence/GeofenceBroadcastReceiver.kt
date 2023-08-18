@@ -22,11 +22,8 @@ import com.udacity.project4.R
  */
 class GeofenceBroadcastReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        // TODO: implement the onReceive method to receive the geofencing events at the background
         if (intent.action == ACTION_GEOFENCE_EVENT) {
-            Log.i(TAG,"get Geofences event")
             val geofencingEvent = GeofencingEvent.fromIntent(intent)
-
             if (geofencingEvent != null) {
                 if (geofencingEvent.hasError()) {
                     val errorMessage = errorMessage(context, geofencingEvent.errorCode)
