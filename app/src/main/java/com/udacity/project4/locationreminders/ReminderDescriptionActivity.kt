@@ -36,7 +36,7 @@ class ReminderDescriptionActivity : AppCompatActivity() {
         with(binding){
             reminderTitle.text = reminderItem.title
             reminderDescription.text = reminderItem.description
-            reminderLocation.text = getString(R.string.reminder_location_details,reminderItem.location)
+            reminderLocation.text = reminderItem.location
         }
 
     }

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
@@ -13,36 +12,41 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@color/bgr"
         android:gravity="center"
         android:orientation="vertical"
         tools:context=".locationreminders.ReminderDescriptionActivity">
 
-        <!-- TODO: Add the design of the reminder details -->
 
         <TextView
             android:id="@+id/reminder_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
-            tools:text="Reminder Title"
-            android:textSize="@dimen/text_size_large"/>
+            android:textColor="@color/white"
+            android:textSize="25dp"
+            android:textStyle="bold"
+            tools:text="Reminder Title" />
 
         <TextView
             android:id="@+id/reminder_description"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center"
             android:layout_marginTop="@dimen/layout_margin"
-            tools:text="Reminder Description"
-            android:textSize="@dimen/text_size_large"/>
+            android:gravity="center"
+            android:textColor="@color/white"
+            android:textSize="23dp"
+            android:textStyle="bold"
+            tools:text="Reminder Description" />
 
         <TextView
             android:id="@+id/reminder_location"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
             android:gravity="center"
-            android:layout_marginTop="@dimen/layout_margin"
-            tools:text="Reminder location"
-            android:textSize="@dimen/text_size_large"/>
+            android:textColor="@color/white"
+            android:textSize="20dp"
+            tools:text="Reminder location" />
     </LinearLayout>
 </layout>

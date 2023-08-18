@@ -1,7 +1,6 @@
 package com.udacity.project4.locationreminders.savereminder
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.annotation.TargetApi
 import android.app.PendingIntent
 import android.content.Intent
@@ -36,8 +35,8 @@ import com.udacity.project4.base.NavigationCommand
 import com.udacity.project4.databinding.FragmentSaveReminderBinding
 import com.udacity.project4.locationreminders.geofence.GeofenceBroadcastReceiver
 import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
+import com.udacity.project4.utils.sendNotification
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
-import java.util.Objects
 import org.koin.android.ext.android.inject
 
 class SaveReminderFragment : BaseFragment() {
@@ -84,7 +83,7 @@ class SaveReminderFragment : BaseFragment() {
             requireContext(),
             0,
             intent,
-            PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
     }
 
@@ -254,7 +253,6 @@ class SaveReminderFragment : BaseFragment() {
         }
     }
 
-    @SuppressLint("MissingPermission")
     private fun addGeofenceForReminder() {
 
         if (this::reminderData.isInitialized) {
@@ -276,19 +274,34 @@ class SaveReminderFragment : BaseFragment() {
                 .addGeofence(geofence)
                 .build()
 
-            geofencingClient.addGeofences(geofencingRequest, geofencePendingIntent).run {
-                addOnSuccessListener {
-                    _viewModel.showSnackBarInt.value = R.string.geofences_added
-                    _viewModel.validateAndSaveReminder(reminderData)
-                    if (!hasNotificationPermissionGranted) {
-                        notificationPermissionLauncher
+            geofencingClient.removeGeofences(geofencePendingIntent).run {
+                addOnCompleteListener {
+                    if (ActivityCompat.checkSelfPermission(
+                            requireContext(),
+                            Manifest.permission.ACCESS_FINE_LOCATION
+                        ) != PackageManager.PERMISSION_GRANTED
+                    ) {
+                        // TODO: Consider calling
+                        //    ActivityCompat#requestPermissions
+                        // here to request the missing permissions, and then overriding
+                        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                        //                                          int[] grantResults)
+                        // to handle the case where the user grants the permission. See the documentation
+                        // for ActivityCompat#requestPermissions for more details.
+                        return@addOnCompleteListener
                     }
-
-                }
-                addOnFailureListener {
-                    _viewModel.showSnackBarInt.value = R.string.geofences_not_added
-                    if ((it.message != null)) {
-                        Log.w(TAG, it.message!!)
+                    geofencingClient.addGeofences(geofencingRequest, geofencePendingIntent).run {
+                        addOnSuccessListener {
+                            _viewModel.showSnackBarInt.value = R.string.geofences_added
+                            _viewModel.validateAndSaveReminder(reminderData)
+                            sendNotification(requireContext(), reminderData)
+                        }
+                        addOnFailureListener {
+                            _viewModel.showSnackBarInt.value = R.string.geofences_not_added
+                            if ((it.message != null)) {
+                                Log.w(TAG, it.message!!)
+                            }
+                        }
                     }
                 }
             }
