@@ -22,6 +22,7 @@
         android:id="@+id/logIn_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="20dp"
         android:text="@string/login"
         style="@style/Button"
         app:layout_constraintStart_toStartOf="parent"

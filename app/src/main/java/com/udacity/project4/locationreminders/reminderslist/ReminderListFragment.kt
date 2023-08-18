@@ -48,12 +48,10 @@ class ReminderListFragment : BaseFragment() {
 
     override fun onResume() {
         super.onResume()
-        // Load the reminders list on the ui
         _viewModel.loadReminders()
     }
 
     private fun navigateToAddReminder() {
-        // Use the navigationCommand live data to navigate between the fragments
         _viewModel.navigationCommand.postValue(
             NavigationCommand.To(ReminderListFragmentDirections.toSaveReminder())
         )
@@ -68,7 +66,6 @@ class ReminderListFragment : BaseFragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.logout -> {
-                // TODO: add the logout implementation
                 AuthUI.getInstance().signOut(requireContext()).addOnSuccessListener {
                     val logOutIntent = Intent(activity, AuthenticationActivity::class.java)
                     startActivity(logOutIntent)

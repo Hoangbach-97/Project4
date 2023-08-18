@@ -33,6 +33,7 @@ class RemindersLocalRepository(
             }
         }
     }
+
     /**
      * Insert a reminder in the db.
      * @param reminder the reminder to be inserted
@@ -68,10 +69,8 @@ class RemindersLocalRepository(
      * Deletes all the reminders in the db
      */
     override suspend fun deleteAllReminders() {
-        wrapEspressoIdlingResource {
-            withContext(ioDispatcher) {
-                remindersDao.deleteAllReminders()
-            }
+        withContext(ioDispatcher) {
+            remindersDao.deleteAllReminders()
         }
     }
 }
