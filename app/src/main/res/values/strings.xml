@@ -47,7 +47,5 @@
     <string name="sign_in_with_email">Sign in with email</string>
     <string name="sign_in_with_google_account">Sign in with Google</string>
     <string name="ok">OK</string>
-    <string name="reminder_location_details">Don\'t forget here %s you have a reminder</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="reminder_location_details">Do not forget %s you have a reminder</string>
 </resources>
