@@ -18,6 +18,8 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContentProviderCompat.requireContext
+import androidx.core.content.ContextCompat.startActivity
 import androidx.databinding.DataBindingUtil
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.Geofence
@@ -104,7 +106,7 @@ class SaveReminderFragment : BaseFragment() {
         binding.lifecycleOwner = this
         binding.selectLocation.setOnClickListener {
             // Navigate to another fragment to get the user location
-            val directions = SaveReminderFragmentDirections
+                val directions = SaveReminderFragmentDirections
                 .actionSaveReminderFragmentToSelectLocationFragment()
             _viewModel.navigationCommand.value = NavigationCommand.To(directions)
         }
@@ -274,77 +276,76 @@ class SaveReminderFragment : BaseFragment() {
                 .addGeofence(geofence)
                 .build()
 
-            geofencingClient.removeGeofences(geofencePendingIntent).run {
-                addOnCompleteListener {
-                    if (ActivityCompat.checkSelfPermission(
-                            requireContext(),
-                            Manifest.permission.ACCESS_FINE_LOCATION
-                        ) != PackageManager.PERMISSION_GRANTED
-                    ) {
-                        // TODO: Consider calling
-                        //    ActivityCompat#requestPermissions
-                        // here to request the missing permissions, and then overriding
-                        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                        //                                          int[] grantResults)
-                        // to handle the case where the user grants the permission. See the documentation
-                        // for ActivityCompat#requestPermissions for more details.
-                        return@addOnCompleteListener
-                    }
-                    geofencingClient.addGeofences(geofencingRequest, geofencePendingIntent).run {
-                        addOnSuccessListener {
-                            _viewModel.showSnackBarInt.value = R.string.geofences_added
-                            _viewModel.validateAndSaveReminder(reminderData)
-                            sendNotification(requireContext(), reminderData)
-                        }
-                        addOnFailureListener {
-                            _viewModel.showSnackBarInt.value = R.string.geofences_not_added
-                            if ((it.message != null)) {
-                                Log.w(TAG, it.message!!)
-                            }
-                        }
+
+            if (ActivityCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return
+            }
+            geofencingClient.addGeofences(geofencingRequest, geofencePendingIntent).run {
+                addOnSuccessListener {
+                    _viewModel.showSnackBarInt.value = R.string.geofences_added
+                    _viewModel.validateAndSaveReminder(reminderData)
+                    sendNotification(requireContext(), reminderData)
+                }
+                addOnFailureListener {
+                    _viewModel.showSnackBarInt.value = R.string.geofences_not_added
+                    if ((it.message != null)) {
+                        Log.w(TAG, it.message!!)
                     }
                 }
             }
         }
     }
 
-    private fun showSettingDialog() {
-        MaterialAlertDialogBuilder(
-            requireContext(),
-            com.google.android.material.R.style.MaterialAlertDialog_Material3
-        )
-            .setTitle("Notification Permission")
-            .setMessage("Notification permission is required, Please allow notification permission from setting")
-            .setPositiveButton("Ok") { _, _ ->
-                val intent = Intent(ACTION_APPLICATION_DETAILS_SETTINGS)
-                intent.data = Uri.parse("package")
-                startActivity(intent)
+
+
+private fun showSettingDialog() {
+    MaterialAlertDialogBuilder(
+        requireContext(),
+        com.google.android.material.R.style.MaterialAlertDialog_Material3
+    )
+        .setTitle("Notification Permission")
+        .setMessage("Notification permission is required, Please allow notification permission from setting")
+        .setPositiveButton("Ok") { _, _ ->
+            val intent = Intent(ACTION_APPLICATION_DETAILS_SETTINGS)
+            intent.data = Uri.parse("package")
+            startActivity(intent)
+        }
+        .setNegativeButton("Cancel", null)
+        .show()
+}
+
+private fun showNotificationPermissionRationale() {
+
+    MaterialAlertDialogBuilder(
+        requireContext(),
+        com.google.android.material.R.style.MaterialAlertDialog_Material3
+    )
+        .setTitle("Alert")
+        .setMessage("Notification permission is required, to show notification")
+        .setPositiveButton("Ok") { _, _ ->
+            if (Build.VERSION.SDK_INT >= 33) {
+                notificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
             }
-            .setNegativeButton("Cancel", null)
-            .show()
-    }
+        }
+        .setNegativeButton("Cancel", null)
+        .show()
+}
 
-    private fun showNotificationPermissionRationale() {
-
-        MaterialAlertDialogBuilder(
-            requireContext(),
-            com.google.android.material.R.style.MaterialAlertDialog_Material3
-        )
-            .setTitle("Alert")
-            .setMessage("Notification permission is required, to show notification")
-            .setPositiveButton("Ok") { _, _ ->
-                if (Build.VERSION.SDK_INT >= 33) {
-                    notificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
-                }
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
-    }
-
-    companion object {
-        internal const val ACTION_GEOFENCE_EVENT =
-            "SaveReminderFragment.action.ACTION_GEOFENCE_EVENT"
-    }
+companion object {
+    internal const val ACTION_GEOFENCE_EVENT =
+        "SaveReminderFragment.action.ACTION_GEOFENCE_EVENT"
+}
 }
 
 

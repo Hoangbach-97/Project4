@@ -10,7 +10,6 @@ import android.view.*
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.databinding.DataBindingUtil
-import androidx.navigation.NavController
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -28,12 +27,10 @@ import com.udacity.project4.databinding.FragmentSelectLocationBinding
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 import org.koin.android.ext.android.inject
-import org.koin.core.component.getScopeName
 import java.util.Locale
 
 class SelectLocationFragment : BaseFragment() , OnMapReadyCallback{
 
-    // Use Koin to get the view model of the SaveReminder
     override val _viewModel: SaveReminderViewModel by inject()
     private lateinit var binding: FragmentSelectLocationBinding
     private lateinit var map: GoogleMap
@@ -69,9 +66,6 @@ class SelectLocationFragment : BaseFragment() , OnMapReadyCallback{
     }
 
     private fun onLocationSelected() {
-        // TODO: When the user confirms on the selected location,
-        //  send back the selected location details to the view model
-        //  and navigate back to the previous fragment to save the reminder and add the geofence
         if(poi != null){
             _viewModel.reminderSelectedLocationStr.value = poi!!.name
             _viewModel.selectedPOI.value = poi
@@ -99,7 +93,6 @@ class SelectLocationFragment : BaseFragment() , OnMapReadyCallback{
     }
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
-        // TODO: Change the map type based on the user's selection.
         R.id.normal_map -> {
             map.mapType = GoogleMap.MAP_TYPE_NORMAL
             true
@@ -140,7 +133,7 @@ class SelectLocationFragment : BaseFragment() , OnMapReadyCallback{
                 REQUEST_LOCATION_PERMISSION
             )
         }else {
-            map.setMyLocationEnabled(true)
+            map.isMyLocationEnabled = true
             LocationServices.getFusedLocationProviderClient(requireContext()).lastLocation.addOnSuccessListener { location ->
                 if (location != null) {
                     val currentDeviceLocation = LatLng(location.latitude, location.longitude)
