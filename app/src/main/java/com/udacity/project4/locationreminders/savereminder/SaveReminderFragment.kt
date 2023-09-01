@@ -2,6 +2,7 @@ package com.udacity.project4.locationreminders.savereminder
 
 import android.Manifest
 import android.annotation.TargetApi
+import android.app.Activity
 import android.app.PendingIntent
 import android.content.Intent
 import android.content.IntentSender
@@ -18,8 +19,6 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContentProviderCompat.requireContext
-import androidx.core.content.ContextCompat.startActivity
 import androidx.databinding.DataBindingUtil
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.Geofence
@@ -37,7 +36,6 @@ import com.udacity.project4.base.NavigationCommand
 import com.udacity.project4.databinding.FragmentSaveReminderBinding
 import com.udacity.project4.locationreminders.geofence.GeofenceBroadcastReceiver
 import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
-import com.udacity.project4.utils.sendNotification
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 import org.koin.android.ext.android.inject
 
@@ -85,7 +83,7 @@ class SaveReminderFragment : BaseFragment() {
             requireContext(),
             0,
             intent,
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+            PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
     }
 
@@ -218,7 +216,9 @@ class SaveReminderFragment : BaseFragment() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_TURN_DEVICE_LOCATION_ON) {
-            checkDeviceLocationSettingsAndStartGeofence(false)
+            if (resultCode != Activity.RESULT_OK) {
+                checkDeviceLocationSettingsAndStartGeofence(false)
+            }
         }
     }
 
@@ -233,9 +233,14 @@ class SaveReminderFragment : BaseFragment() {
         locationSettingsResponseTask.addOnFailureListener { exception ->
             if (exception is ResolvableApiException && resolve) {
                 try {
-                    exception.startResolutionForResult(
-                        requireActivity(),
-                        REQUEST_TURN_DEVICE_LOCATION_ON
+                    startIntentSenderForResult(
+                        exception.resolution.intentSender,
+                        REQUEST_TURN_DEVICE_LOCATION_ON,
+                        null,
+                        0,
+                        0,
+                        0,
+                        null
                     )
                 } catch (sendEx: IntentSender.SendIntentException) {
                     Log.d(TAG, "Error getting location " + sendEx.message)
@@ -278,25 +283,27 @@ class SaveReminderFragment : BaseFragment() {
                 .build()
 
 
-            if (ActivityCompat.checkSelfPermission(
-                    requireContext(),
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
-                return
-            }
+//            if (ActivityCompat.checkSelfPermission(
+//                    requireContext(),
+//                    Manifest.permission.ACCESS_FINE_LOCATION
+//                ) != PackageManager.PERMISSION_GRANTED
+//            ) {
+//                // TODO: Consider calling
+//                //    ActivityCompat#requestPermissions
+//                // here to request the missing permissions, and then overriding
+//                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+//                //                                          int[] grantResults)
+//                // to handle the case where the user grants the permission. See the documentation
+//                // for ActivityCompat#requestPermissions for more details.
+//                return
+//            }
             geofencingClient.addGeofences(geofencingRequest, geofencePendingIntent).run {
                 addOnSuccessListener {
                     _viewModel.showSnackBarInt.value = R.string.geofences_added
                     _viewModel.validateAndSaveReminder(reminderData)
-                    sendNotification(requireContext(), reminderData)
+//                    if (!hasNotificationPermissionGranted) {
+//                        notificationPermissionLauncher
+//                    }
                 }
                 addOnFailureListener {
                     _viewModel.showSnackBarInt.value = R.string.geofences_not_added
