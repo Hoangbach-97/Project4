@@ -1,6 +1,7 @@
 package com.udacity.project4.locationreminders.savereminder
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.annotation.TargetApi
 import android.app.Activity
 import android.app.PendingIntent
@@ -216,9 +217,7 @@ class SaveReminderFragment : BaseFragment() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_TURN_DEVICE_LOCATION_ON) {
-            if (resultCode != Activity.RESULT_OK) {
-                checkDeviceLocationSettingsAndStartGeofence(false)
-            }
+            checkDeviceLocationSettingsAndStartGeofence(false)
         }
     }
 
@@ -261,6 +260,7 @@ class SaveReminderFragment : BaseFragment() {
         }
     }
 
+    @SuppressLint("MissingPermission")
     private fun addGeofenceForReminder() {
 
         if (this::reminderData.isInitialized) {
