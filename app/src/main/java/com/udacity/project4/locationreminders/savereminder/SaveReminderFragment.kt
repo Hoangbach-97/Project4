@@ -106,7 +106,7 @@ class SaveReminderFragment : BaseFragment() {
         binding.lifecycleOwner = this
         binding.selectLocation.setOnClickListener {
             // Navigate to another fragment to get the user location
-                val directions = SaveReminderFragmentDirections
+            val directions = SaveReminderFragmentDirections
                 .actionSaveReminderFragmentToSelectLocationFragment()
             _viewModel.navigationCommand.value = NavigationCommand.To(directions)
         }
@@ -118,14 +118,15 @@ class SaveReminderFragment : BaseFragment() {
             val latitude = _viewModel.latitude.value
             val longitude = _viewModel.longitude.value
 
-            reminderData = ReminderDataItem(
+            val reminderData = ReminderDataItem(
                 title,
                 description,
                 location,
                 latitude,
                 longitude
             )
-            if (latitude != null && longitude != null) {
+            if (_viewModel.validateEnteredData(reminderData)) {
+                this.reminderData = reminderData
                 checkPermissionsAndStartGeofencing()
             }
         }
@@ -308,44 +309,43 @@ class SaveReminderFragment : BaseFragment() {
     }
 
 
-
-private fun showSettingDialog() {
-    MaterialAlertDialogBuilder(
-        requireContext(),
-        com.google.android.material.R.style.MaterialAlertDialog_Material3
-    )
-        .setTitle("Notification Permission")
-        .setMessage("Notification permission is required, Please allow notification permission from setting")
-        .setPositiveButton("Ok") { _, _ ->
-            val intent = Intent(ACTION_APPLICATION_DETAILS_SETTINGS)
-            intent.data = Uri.parse("package")
-            startActivity(intent)
-        }
-        .setNegativeButton("Cancel", null)
-        .show()
-}
-
-private fun showNotificationPermissionRationale() {
-
-    MaterialAlertDialogBuilder(
-        requireContext(),
-        com.google.android.material.R.style.MaterialAlertDialog_Material3
-    )
-        .setTitle("Alert")
-        .setMessage("Notification permission is required, to show notification")
-        .setPositiveButton("Ok") { _, _ ->
-            if (Build.VERSION.SDK_INT >= 33) {
-                notificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+    private fun showSettingDialog() {
+        MaterialAlertDialogBuilder(
+            requireContext(),
+            com.google.android.material.R.style.MaterialAlertDialog_Material3
+        )
+            .setTitle("Notification Permission")
+            .setMessage("Notification permission is required, Please allow notification permission from setting")
+            .setPositiveButton("Ok") { _, _ ->
+                val intent = Intent(ACTION_APPLICATION_DETAILS_SETTINGS)
+                intent.data = Uri.parse("package")
+                startActivity(intent)
             }
-        }
-        .setNegativeButton("Cancel", null)
-        .show()
-}
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
 
-companion object {
-    internal const val ACTION_GEOFENCE_EVENT =
-        "SaveReminderFragment.action.ACTION_GEOFENCE_EVENT"
-}
+    private fun showNotificationPermissionRationale() {
+
+        MaterialAlertDialogBuilder(
+            requireContext(),
+            com.google.android.material.R.style.MaterialAlertDialog_Material3
+        )
+            .setTitle("Alert")
+            .setMessage("Notification permission is required, to show notification")
+            .setPositiveButton("Ok") { _, _ ->
+                if (Build.VERSION.SDK_INT >= 33) {
+                    notificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    companion object {
+        internal const val ACTION_GEOFENCE_EVENT =
+            "SaveReminderFragment.action.ACTION_GEOFENCE_EVENT"
+    }
 }
 
 
