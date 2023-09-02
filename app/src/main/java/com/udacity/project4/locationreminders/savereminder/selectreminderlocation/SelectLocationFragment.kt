@@ -139,16 +139,12 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             }
             getUserLocation()
         } else {
-            ActivityCompat.requestPermissions(
-                requireActivity(), arrayOf(
+            requestPermissions(
+                arrayOf(
                     Manifest.permission.ACCESS_FINE_LOCATION,
                     Manifest.permission.ACCESS_COARSE_LOCATION
                 ), REQUEST_LOCATION_PERMISSION
             )
-            map.clear()
-            val mapFragment =
-                childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
-            mapFragment.getMapAsync(this)
         }
     }
 
@@ -191,8 +187,8 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                 }
             }
         } else {
-            ActivityCompat.requestPermissions(
-                requireActivity(), arrayOf(
+            requestPermissions(
+                arrayOf(
                     Manifest.permission.ACCESS_FINE_LOCATION,
                     Manifest.permission.ACCESS_COARSE_LOCATION
                 ), REQUEST_LOCATION_PERMISSION
@@ -213,6 +209,8 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         if (requestCode == REQUEST_LOCATION_PERMISSION) {
             if (grantResults.isNotEmpty() && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
                 enableLocationTracking()
+            } else {
+                _viewModel.showToast.value = "Location permission is not granted"
             }
         }
     }
